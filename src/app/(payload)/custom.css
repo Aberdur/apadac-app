@@ -1,0 +1,64 @@
+@media (min-width: 768px) {
+  :root {
+    --theme-bg: #f7f1e5;
+    --theme-elevation-0: #fffaf1;
+    --theme-elevation-50: #f4ecdb;
+    --theme-elevation-100: #eadbbd;
+    --theme-elevation-150: #dcc8a1;
+    --theme-elevation-200: #ceb78d;
+    --theme-elevation-250: #8a755d;
+    --theme-elevation-300: #776554;
+    --theme-elevation-400: #5f5042;
+    --theme-elevation-500: #4c4035;
+    --theme-elevation-600: #3d332b;
+    --theme-elevation-800: #241f1b;
+    --theme-text: #241f1b;
+    --theme-input-bg: #fffdf8;
+    --theme-border-color: #dcc8a1;
+    --theme-success-250: #d8e2d4;
+    --theme-success-500: #4d5e4f;
+  }
+}
+
+.apadac-admin-site-link {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--theme-elevation-100);
+}
+
+.apadac-admin-site-link__anchor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: #d9b321;
+  color: #243424;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.apadac-admin-site-link__anchor:hover {
+  filter: brightness(0.98);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 767px) {
+  .drawer__footer,
+  .document-drawer__footer,
+  .payload-drawer__footer,
+  .form-submit {
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .drawer__footer,
+  .document-drawer__footer,
+  .payload-drawer__footer {
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "apadac",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "node scripts/patch-payload-cookie-case.mjs",
+    "dev": "next dev --webpack --no-server-fast-refresh",
+    "dev:network": "next dev --webpack --no-server-fast-refresh --hostname 0.0.0.0 --port 3000",
+    "dev:turbo": "next dev --turbopack --no-server-fast-refresh",
+    "build": "next build --webpack",
+    "start": "next start",
+    "start:network": "next start --hostname 0.0.0.0 --port 3000",
+    "lint": "eslint .",
+    "payload": "payload",
+    "payload:types": "payload generate:types",
+    "payload:importmap": "payload generate:importmap"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.2",
+    "@payloadcms/db-sqlite": "^3.82.1",
+    "@payloadcms/next": "^3.82.1",
+    "@payloadcms/richtext-lexical": "^3.82.1",
+    "graphql": "^16.13.2",
+    "next": "^16.2.3",
+    "nodemailer": "^8.0.5",
+    "payload": "^3.82.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.2.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
