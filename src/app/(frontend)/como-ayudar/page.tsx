@@ -10,13 +10,13 @@ export const metadata = {
   title: "Cómo ayudar",
 };
 
-const resolvePrimaryLink = (value?: string | null, fallback = "#contacto") =>
+const resolvePrimaryLink = (value?: string | null, fallback = "/contacto") =>
   resolveSafeHref(value, fallback);
 
 const mailtoLink = (email?: string | null) =>
   typeof email === "string" && email.trim().length > 0
     ? `mailto:${email.trim()}`
-    : "#contacto";
+    : "/contacto";
 
 const textOrFallback = (value: unknown, fallback: string) =>
   typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
@@ -169,7 +169,7 @@ export default async function HelpPage() {
             </a>
             <a
               className="button-soft rounded-full border border-[var(--line-strong)] bg-white px-6 py-3 text-sm font-semibold"
-              href="#contacto"
+              href="/contacto"
             >
               {t.common.contact}
             </a>
@@ -445,7 +445,7 @@ export default async function HelpPage() {
                 </a>
                 <a
                   className="button-soft inline-flex rounded-full border border-[var(--line-strong)] bg-white/70 px-5 py-3 text-sm font-semibold"
-                  href="#contacto"
+                  href="/contacto"
                 >
                   Resolver dudas
                 </a>
@@ -684,67 +684,6 @@ export default async function HelpPage() {
             </a>
           </div>
         </article>
-      </section>
-
-      <section
-        className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-8 shadow-[var(--shadow)]"
-        id="contacto"
-      >
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--olive)]">
-          {t.common.contact}
-        </p>
-        <h2 className="display-font mt-3 text-4xl leading-none">
-          {t.help.contactTitle}
-        </h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-          {t.help.contactText}
-        </p>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="surface-lift rounded-[1.5rem] border border-[var(--line)] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-              {t.help.contactBlockEmail}
-            </p>
-            <p className="mt-3 break-all text-sm leading-7 text-[var(--foreground)]">
-              {contactEmail || t.common.pendingInPanel}
-            </p>
-          </div>
-          <div className="surface-lift rounded-[1.5rem] border border-[var(--line)] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-              {t.help.contactBlockPhone}
-            </p>
-            <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-              {contactPhone || t.common.pendingInPanel}
-            </p>
-          </div>
-          <div className="surface-lift rounded-[1.5rem] border border-[var(--line)] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-              {t.help.contactBlockWhatsapp}
-            </p>
-            <p className="mt-3 text-sm leading-7 text-[var(--foreground)]">
-              {whatsapp || t.common.pendingInPanel}
-            </p>
-          </div>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a
-            className="button-soft inline-flex rounded-full bg-[var(--coral)] px-5 py-3 text-sm font-semibold text-white"
-            href={mailtoLink(contactEmail)}
-          >
-            {t.common.writeNow}
-          </a>
-          <Link
-            className="button-soft inline-flex rounded-full border border-[var(--line-strong)] px-5 py-3 text-sm font-semibold"
-            href="/adopta"
-          >
-            {t.common.seeAnimalsInAdoption}
-          </Link>
-          <Link
-            className="button-soft inline-flex rounded-full border border-[var(--line-strong)] px-5 py-3 text-sm font-semibold"
-            href="/casos-de-exito"
-          >
-            {t.common.casesOfSuccess}
-          </Link>
-        </div>
       </section>
     </div>
   );

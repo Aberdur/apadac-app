@@ -150,7 +150,7 @@ export default async function FrontendLayout({
                 <Link className="rounded-full px-4 py-2 hover:bg-white/70" href="/anuncios">
                   {t.common.announcements}
                 </Link>
-                <Link className="rounded-full px-4 py-2 hover:bg-white/70" href="/como-ayudar#contacto">
+                <Link className="rounded-full px-4 py-2 hover:bg-white/70" href="/contacto">
                   {t.common.contact}
                 </Link>
                 {/* Use a hard navigation to keep the public app from preloading the Payload admin bundle. */}
@@ -208,7 +208,6 @@ export default async function FrontendLayout({
                   <Link href="/">{t.common.home}</Link>
                   <Link href="/apadac">APADAC</Link>
                   <Link href="/adopta">{t.common.seeAnimalsInAdoption}</Link>
-                  <Link href="/como-ayudar">{t.common.help}</Link>
                   <Link href="/anuncios">{t.common.announcements}</Link>
                   <Link href="/casos-de-exito">{t.common.casesOfSuccess}</Link>
                   {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
@@ -227,6 +226,7 @@ export default async function FrontendLayout({
                   href="/como-ayudar"
                 >
                   {t.common.help}
+                  
                 </Link>
               </div>
             </div>
