@@ -285,12 +285,20 @@ export function LostPetButton({
                   </a>
                 ) : null}
                 {emailHref ? (
-                  <a
-                    className="button-soft inline-flex rounded-full border border-[var(--line-strong)] bg-white px-5 py-3 text-sm font-semibold"
-                    href={emailHref}
-                  >
-                    {copy.email}
-                  </a>
+                  <div className="inline-flex items-center gap-3">
+                    <a
+                      className="button-soft inline-flex rounded-full border border-[var(--line-strong)] bg-white px-5 py-3 text-sm font-semibold"
+                      href={emailHref}
+                    >
+                      {copy.email}
+                    </a>
+
+                    {contactEmail && (
+                      <span className="text-sm font-medium opacity-80">
+                        {contactEmail}
+                      </span>
+                    )}
+                  </div>
                 ) : null}
               </div>
             </section>

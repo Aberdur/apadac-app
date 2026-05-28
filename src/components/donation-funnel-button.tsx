@@ -345,7 +345,13 @@ export function DonationFunnelButton({
                   href={contactHref}
                 >
                   {contactEmail?.trim() ? copy.email : copy.contact}
-                </a>
+                
+                {contactEmail && (
+                      <span className="text-sm font-medium opacity-80">
+                        : {contactEmail}
+                      </span>
+                )}
+              </a>
               </div>
             </section>
           </div>
