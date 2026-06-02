@@ -32,10 +32,11 @@ export default async function FrontendLayout({
   const locale = await getLocale();
   const t = getDictionary(locale);
   const adoptionItems = getAdoptionGuideNav(locale);
-  const helpItems = getHelpOptions(locale).map((item) => ({
-    href: item.href.startsWith("#") ? `/como-ayudar${item.href}` : item.href,
-    label: item.title,
-  }));
+  const helpItems = [
+    { href: "/donaciones", label: "Donaciones" },
+    { href: "/voluntariado", label: "Voluntariado" },
+    { href: "/apadrina", label: "Apadrina un animal" },
+  ];
   const payload = await getCMS();
   const helpSettings = await payload.findGlobal({
     depth: 1,
