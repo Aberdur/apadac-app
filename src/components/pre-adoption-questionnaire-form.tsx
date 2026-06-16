@@ -11,6 +11,7 @@ import {
 
 type PreAdoptionQuestionnaireFormProps = {
   locale: Locale;
+  animals?: string[];
 };
 
 const RequiredMark = () => <span className="ml-1 text-[var(--coral)]">*</span>;
@@ -69,7 +70,7 @@ const copyByLocale = {
   }
 >;
 
-const renderField = (field: PreAdoptionField) => {
+const renderField = (field: PreAdoptionField, animals: string[] = []) => {
   const baseClass =
     "w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--olive)]";
   const wrapperClass = field.wide ? "space-y-2 text-sm md:col-span-2" : "space-y-2 text-sm";
@@ -81,36 +82,41 @@ const renderField = (field: PreAdoptionField) => {
         {field.required ? <RequiredMark /> : null}
       </span>
       {field.type === "textarea" ? (
-        <textarea
-          className={`${baseClass} min-h-28 leading-7`}
-          name={field.name}
-          required={field.required}
-        />
+        <textarea className={`${baseClass} min-h-28 leading-7`} name={field.name} required={field.required} />
       ) : field.type === "select" ? (
         <select className={baseClass} defaultValue="" name={field.name} required={field.required}>
-          <option value="" disabled>
-            Selecciona una opción
-          </option>
+          <option value="" disabled>Selecciona una opción</option>
           {field.options?.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
+            <option key={option} value={option}>{option}</option>
           ))}
         </select>
+      ) : field.type === "animal-autocomplete" ? (
+        <>
+          <input
+            className={baseClass}
+            name={field.name}
+            required={field.required}
+            type="text"
+            list="animal-names-list"
+            autoComplete="off"
+            placeholder="Empieza a escribir el nombre..."
+          />
+          <datalist id="animal-names-list">
+            {animals.map((animalName) => (
+              <option key={animalName} value={animalName} />
+            ))}
+          </datalist>
+        </>
       ) : (
-        <input
-          className={baseClass}
-          name={field.name}
-          required={field.required}
-          type={field.type || "text"}
-        />
+        <input className={baseClass} name={field.name} required={field.required} type={field.type || "text"} />
       )}
       {field.help ? <span className="block text-xs leading-5 text-[var(--muted)]">{field.help}</span> : null}
     </label>
   );
 };
 
-export function PreAdoptionQuestionnaireForm({ locale }: PreAdoptionQuestionnaireFormProps) {
+export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdoptionQuestionnaireFormProps) {
+
   const copy = copyByLocale[locale];
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -222,7 +228,7 @@ export function PreAdoptionQuestionnaireForm({ locale }: PreAdoptionQuestionnair
               </div>
               <div className="p-5 sm:p-6">
                 <div>
-                  <div className="grid gap-4 md:grid-cols-2">{section.fields.map(renderField)}</div>
+                  <div className="grid gap-4 md:grid-cols-2">{section.fields.map((field) => renderField(field, animals))}</div>
                 </div>
               </div>
             </article>
