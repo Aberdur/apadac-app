@@ -365,6 +365,10 @@ export const Animals: CollectionConfig = {
           label: "Baja interna (oculto en web)",
           value: "baja_interna",
         },
+        {
+          label: "Recuperado por su familia",
+          value: "recuperado",
+        },
       ],
       required: true,
     },
