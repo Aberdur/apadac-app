@@ -10,13 +10,46 @@ import type {
 
 import { hasStaffRole } from "@/lib/security";
 
+// 1. On modifie le slugify pour qu'il supprime aussi les chiffres (0-9)
 const slugify = (value: string) =>
   value
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^a-z]+/g, "-") 
     .replace(/(^-|-$)/g, "");
+
+// ---------------------------------------------------------
+// VALIDATIONS PERSONNALISÉES
+// ---------------------------------------------------------
+
+const validateNoNumbersRequired = (value: string | null | undefined) => {
+  if (!value || value.trim() === "") return "Este campo es obligatorio.";
+  if (/\d/.test(value)) return "Este campo no puede contener números.";
+  return true;
+};
+
+const validateNoNumbersOptional = (value: string | null | undefined) => {
+  if (value && /\d/.test(value)) return "Este campo no puede contener números.";
+  return true;
+};
+
+const validateDateRequired = (value: string | null | undefined) => {
+  if (!value) return "Este campo es obligatorio.";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida.";
+  return true;
+};
+
+const validateDateOptional = (value: string | null | undefined) => {
+  if (value) {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida.";
+  }
+  return true;
+};
+
+// ---------------------------------------------------------
 
 const canManageAnimals: Access = ({ req: { user } }) =>
   Boolean(
@@ -282,309 +315,307 @@ export const Animals: CollectionConfig = {
     afterChange: [syncMediaOwnership, ensureAnimalDossier],
     afterDelete: [clearMediaOwnership, deleteAnimalDossiers],
   },
+  
   fields: [
     {
-      name: "name",
-      type: "text",
-      label: "Nombre",
-      required: true,
-    },
-    {
-      name: "slug",
-      type: "text",
-      admin: {
-        description: "Se genera automáticamente a partir del nombre si lo dejas vacío.",
-      },
-      hooks: {
-        beforeValidate: [
-          ({ data, value }) => {
-            if (typeof value === "string" && value.length > 0) {
-              return slugify(value);
-            }
-
-            if (typeof data?.name === "string") {
-              return slugify(data.name);
-            }
-
-            return value;
-          },
-        ],
-      },
-      index: true,
-      required: true,
-      unique: true,
-    },
-    {
-      name: "species",
-      type: "select",
-      defaultValue: "perro",
-      label: "Especie",
-      options: [
+      type: "tabs",
+      tabs: [
         {
-          label: "Perro",
-          value: "perro",
-        },
-        {
-          label: "Gato",
-          value: "gato",
-        },
-      ],
-      required: true,
-    },
-    {
-      name: "status",
-      type: "select",
-      admin: {
-        description:
-          "“Baja interna” mantiene la ficha en la base de datos pero la oculta de la web pública. Úsalo para casos sensibles o animales que no deban seguir visibles.",
-      },
-      defaultValue: "en_adopcion",
-      label: "Estado",
-      options: [
-        {
-          label: "En adopción",
-          value: "en_adopcion",
-        },
-        {
-          label: "Urgente",
-          value: "urgente",
-        },
-        {
-          label: "En acogida",
-          value: "acogida",
-        },
-        {
-          label: "Reservado",
-          value: "reservado",
-        },
-        {
-          label: "Adoptado",
-          value: "adoptado",
-        },
-        {
-          label: "Baja interna (oculto en web)",
-          value: "baja_interna",
-        },
-        {
-          label: "Recuperado por su familia",
-          value: "recuperado",
-        },
-      ],
-      required: true,
-    },
-    {
-      name: "featured",
-      type: "checkbox",
-      defaultValue: false,
-      label: "Destacar en portada",
-    },
-    {
-      type: "row",
-      fields: [
-        {
-          name: "entryDate",
-          type: "date",
-          label: "Fecha de entrada",
-        },
-        {
-          name: "adoptionDate",
-          type: "date",
-          label: "Fecha de adopción",
-        },
-      ],
-    },
-    {
-      type: "row",
-      fields: [
-        {
-          name: "sex",
-          type: "select",
-          label: "Sexo",
-          options: [
+          label: "Información Básica",
+          fields: [
             {
-              label: "Macho",
-              value: "macho",
+              type: "row",
+              fields: [
+                {
+                  name: "name",
+                  type: "text",
+                  label: "Nombre",
+                  required: true,
+                  validate: validateNoNumbersRequired, 
+                },
+                {
+                  name: "slug",
+                  type: "text",
+                  admin: {
+                    description: "Se genera automáticamente a partir del nombre si lo dejas vacío.",
+                  },
+                  validate: validateNoNumbersRequired, 
+                  hooks: {
+                    beforeValidate: [
+                      ({ data, value }) => {
+                        if (typeof value === "string" && value.length > 0) {
+                          return slugify(value);
+                        }
+                        if (typeof data?.name === "string") {
+                          return slugify(data.name);
+                        }
+                        return value;
+                      },
+                    ],
+                  },
+                  index: true,
+                  required: true,
+                  unique: true,
+                },
+              ],
             },
             {
-              label: "Hembra",
-              value: "hembra",
+              type: "row",
+              fields: [
+                {
+                  name: "species",
+                  type: "select",
+                  defaultValue: "perro",
+                  label: "Especie",
+                  options: [
+                    { label: "Perro", value: "perro" },
+                    { label: "Gato", value: "gato" },
+                  ],
+                  required: true,
+                },
+                {
+                  name: "breed",
+                  type: "text",
+                  label: "Raza",
+                  validate: validateNoNumbersOptional, 
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "sex",
+                  type: "select",
+                  label: "Sexo",
+                  options: [
+                    { label: "Macho", value: "macho" },
+                    { label: "Hembra", value: "hembra" },
+                  ],
+                  required: true,
+                },
+                {
+                  name: "age",
+                  type: "date", // Passé en format date
+                  label: "Edad aproximada",
+                  required: true,
+                  validate: validateDateRequired, // Nouvelle validation
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "size",
+                  type: "select",
+                  label: "Tamaño",
+                  options: [
+                    { label: "Pequeño", value: "pequeno" },
+                    { label: "Mediano", value: "mediano" },
+                    { label: "Grande", value: "grande" },
+                  ],
+                  required: true,
+                },
+                {
+                  name: "energyLevel",
+                  type: "select",
+                  label: "Nivel de energía",
+                  options: [
+                    { label: "Baja", value: "tranquila" },
+                    { label: "Media", value: "equilibrada" },
+                    { label: "Alta", value: "activa" },
+                  ],
+                },
+              ],
+            },
+            {
+              name: "location",
+              type: "text",
+              label: "Zona / ubicación",
             },
           ],
         },
         {
-          name: "age",
-          type: "text",
-          label: "Edad aproximada",
+          label: "Descripción e Historia",
+          fields: [
+            {
+              name: "summary",
+              type: "textarea",
+              label: "Resumen",
+              required: true,
+            },
+            {
+              name: "story",
+              type: "richText",
+              editor: lexicalEditor(),
+              label: "Historia completa",
+            },
+            {
+              name: "temperament",
+              type: "textarea",
+              label: "Carácter",
+            },
+            {
+              name: "adoptionRequirements",
+              type: "textarea",
+              label: "Requisitos o notas para adopción",
+            },
+          ],
         },
         {
-          name: "size",
-          type: "select",
-          label: "Tamaño",
-          options: [
+          label: "Salud y Compatibilidad",
+          fields: [
             {
-              label: "Pequeño",
-              value: "pequeno",
+              name: "health",
+              type: "textarea",
+              label: "Salud",
             },
             {
-              label: "Mediano",
-              value: "mediano",
+              type: "row",
+              fields: [
+                {
+                  name: "goodWithDogs",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Compatible con perros",
+                },
+                {
+                  name: "goodWithCats",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Compatible con gatos",
+                },
+                {
+                  name: "goodWithKids",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Compatible con niños",
+                },
+              ],
             },
             {
-              label: "Grande",
-              value: "grande",
+              type: "row",
+              fields: [
+                {
+                  name: "vaccinated",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Vacunado/a",
+                },
+                {
+                  name: "sterilized",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Esterilizado/a",
+                },
+                {
+                  name: "specialNeeds",
+                  type: "checkbox",
+                  defaultValue: false,
+                  label: "Necesidades especiales",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: "Multimedia",
+          fields: [
+            {
+              name: "featured",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Destacar en portada",
+            },
+            {
+              name: "coverImage",
+              admin: {
+                allowCreate: true,
+                description:
+                  "Sube la portada desde aquí. La imagen se asociará automáticamente al guardar la ficha.",
+              },
+              filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
+              label: "Imagen principal",
+              relationTo: "media",
+              type: "upload",
+            },
+            {
+              name: "gallery",
+              admin: {
+                allowCreate: true,
+                description:
+                  "Sube aquí el resto de fotos. Quedarán asociadas automáticamente al guardar la ficha.",
+                isSortable: true,
+              },
+              filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
+              hasMany: true,
+              label: "Galería",
+              relationTo: "media",
+              type: "upload",
+            },
+          ],
+        },
+        {
+          label: "Administración",
+          fields: [
+            {
+              name: "status",
+              type: "select",
+              admin: {
+                description:
+                  "“Baja interna” mantiene la ficha en la base de datos pero la oculta de la web pública. Úsalo para casos sensibles o animales que no deban seguir visibles.",
+              },
+              defaultValue: "en_adopcion",
+              label: "Estado",
+              options: [
+                { label: "En adopción", value: "en_adopcion" },
+                { label: "Urgente", value: "urgente" },
+                { label: "En acogida", value: "acogida" },
+                { label: "Reservado", value: "reservado" },
+                { label: "Adoptado", value: "adoptado" },
+                { label: "Baja interna (oculto en web)", value: "baja_interna" },
+                { label: "Recuperado por su familia", value: "recuperado" },
+              ],
+              required: true,
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "entryDate",
+                  type: "date",
+                  label: "Fecha de entrada",
+                  required: true,
+                  validate: validateDateRequired, 
+                },
+                {
+                  name: "adoptionDate",
+                  type: "date",
+                  label: "Fecha de adopción",
+                  validate: validateDateOptional, 
+                },
+              ],
+            },
+            {
+              name: "sponsored",
+              type: "checkbox",
+              defaultValue: false,
+              label: "Apadrinado/a",
+            },
+            {
+              name: "adoptionContact",
+              type: "email",
+              label: "Email de contacto",
+              access: {
+                create: canReadInternalAnimalField,
+                read: canReadInternalAnimalField,
+                update: canReadInternalAnimalField,
+              },
             },
           ],
         },
       ],
-    },
-    {
-      name: "breed",
-      type: "text",
-      label: "Raza",
-    },
-    {
-      type: "row",
-      fields: [
-        {
-          name: "location",
-          type: "text",
-          label: "Zona / ubicación",
-        },
-        {
-          name: "energyLevel",
-          type: "select",
-          label: "Nivel de energía",
-          options: [
-            {
-              label: "Baja",
-              value: "tranquila",
-            },
-            {
-              label: "Media",
-              value: "equilibrada",
-            },
-            {
-              label: "Alta",
-              value: "activa",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "summary",
-      type: "textarea",
-      label: "Resumen",
-      required: true,
-    },
-    {
-      name: "story",
-      type: "richText",
-      editor: lexicalEditor(),
-      label: "Historia completa",
-    },
-    {
-      name: "health",
-      type: "textarea",
-      label: "Salud",
-    },
-    {
-      name: "adoptionRequirements",
-      type: "textarea",
-      label: "Requisitos o notas para adopción",
-    },
-    {
-      name: "temperament",
-      type: "textarea",
-      label: "Carácter",
-    },
-    {
-      type: "row",
-      fields: [
-        {
-          name: "goodWithDogs",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Compatible con perros",
-        },
-        {
-          name: "goodWithCats",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Compatible con gatos",
-        },
-        {
-          name: "goodWithKids",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Compatible con niños",
-        },
-      ],
-    },
-    {
-      type: "row",
-      fields: [
-        {
-          name: "vaccinated",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Vacunado/a",
-        },
-        {
-          name: "sterilized",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Esterilizado/a",
-        },
-        {
-          name: "specialNeeds",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Necesidades especiales",
-        },
-        {
-          name: "sponsored",
-          type: "checkbox",
-          defaultValue: false,
-          label: "Apadrinado/a",
-        },
-      ],
-    },
-    {
-      name: "coverImage",
-      admin: {
-        allowCreate: true,
-        description:
-          "Sube la portada desde aquí. La imagen se asociará automáticamente al guardar la ficha.",
-      },
-      filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
-      label: "Imagen principal",
-      relationTo: "media",
-      type: "upload",
-    },
-    {
-      name: "gallery",
-      admin: {
-        allowCreate: true,
-        description:
-          "Sube aquí el resto de fotos. Quedarán asociadas automáticamente al guardar la ficha.",
-        isSortable: true,
-      },
-      filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
-      hasMany: true,
-      label: "Galería",
-      relationTo: "media",
-      type: "upload",
-    },
-    {
-      name: "adoptionContact",
-      type: "email",
-      label: "Email de contacto",
-      access: {
-        create: canReadInternalAnimalField,
-        read: canReadInternalAnimalField,
-        update: canReadInternalAnimalField,
-      },
     },
   ],
   labels: {

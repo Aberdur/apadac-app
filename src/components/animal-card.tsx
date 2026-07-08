@@ -11,6 +11,7 @@ import {
 } from "@/lib/animals";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { getMedia } from "@/lib/media";
+import { calculateAge } from "@/lib/dateUtils";
 
 type AnimalCardProps = {
   animal: {
@@ -43,6 +44,7 @@ export const AnimalCard = ({
   const sizeLabels = getSizeLabels(locale);
   const speciesLabels = getSpeciesLabels(locale);
   const statusLabels = getStatusLabels(locale);
+  const ageDisplay = typeof animal.age === "string" ? calculateAge(animal.age) : null;
   const cover = getMedia(animal.coverImage);
   const name = animal.name || "Animal";
   const status = animal.status || "";
@@ -56,11 +58,11 @@ export const AnimalCard = ({
       ? formatDate(animal.adoptionDate, locale) || t.common.recentStory
       : [
           formatAnimalValue(animal.species, speciesLabels),
-          animal.age || null,
+          ageDisplay,
           formatAnimalValue(animal.size, sizeLabels),
         ]
           .filter(Boolean)
-          .join(" · ");
+          .join(" . ");
 
   return (
     <article className="surface-lift overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--shadow)]">

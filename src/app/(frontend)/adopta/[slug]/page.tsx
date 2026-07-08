@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { calculateAge } from "@/lib/dateUtils";
 
 import { AdoptionInquiryForm } from "@/components/adoption-inquiry-form";
 import {
@@ -72,6 +73,7 @@ export default async function AnimalPage({ params }: Args) {
   const contactHref = "/como-ayudar#contacto";
   const editHref = `${payload.config.routes.admin}/collections/animals/${animal.id}`;
   const animalName = animal.name || fallbackAnimalName;
+  const ageDisplay = typeof animal.age === "string" ? calculateAge(animal.age) : null;
   const factItems = [
     {
       label: t.animal.facts.species,
@@ -83,7 +85,7 @@ export default async function AnimalPage({ params }: Args) {
     },
     {
       label: t.animal.facts.age,
-      value: animal.age,
+      value: ageDisplay,
     },
     {
       label: t.animal.facts.size,
