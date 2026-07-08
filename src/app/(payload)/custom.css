@@ -1,24 +1,58 @@
-@media (min-width: 768px) {
-  :root {
-    --theme-bg: #f7f1e5;
-    --theme-elevation-0: #fffaf1;
-    --theme-elevation-50: #f4ecdb;
-    --theme-elevation-100: #eadbbd;
-    --theme-elevation-150: #dcc8a1;
-    --theme-elevation-200: #ceb78d;
-    --theme-elevation-250: #8a755d;
-    --theme-elevation-300: #776554;
-    --theme-elevation-400: #5f5042;
-    --theme-elevation-500: #4c4035;
-    --theme-elevation-600: #3d332b;
-    --theme-elevation-800: #241f1b;
-    --theme-text: #241f1b;
-    --theme-input-bg: #fffdf8;
-    --theme-border-color: #dcc8a1;
-    --theme-success-250: #d8e2d4;
-    --theme-success-500: #4d5e4f;
-  }
+html[data-theme="light"] {
+  --theme-bg: #f7f1e5;
+  --theme-elevation-0: #fffaf1;
+  --theme-elevation-50: #f4ecdb;
+  --theme-elevation-100: #eadbbd;
+  --theme-elevation-150: #dcc8a1;
+  --theme-elevation-200: #ceb78d;
+  --theme-elevation-250: #8a755d;
+  --theme-elevation-300: #776554;
+  --theme-elevation-400: #5f5042;
+  --theme-elevation-500: #4c4035;
+  --theme-elevation-600: #3d332b;
+  --theme-elevation-800: #241f1b; 
+  
+  --theme-success-250: #d8e2d4;
+  --theme-success-500: #4d5e4f;
+  
+  color: var(--theme-elevation-800) !important;
 }
+
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select,
+html[data-theme="light"] .field-type label {
+  color: #241f1b !important;
+}
+
+
+html[data-theme="dark"] {
+  --theme-bg: #1c1815;
+  --theme-elevation-0: #241f1b;
+  --theme-elevation-50: #2e2823;
+  --theme-elevation-100: #3d332b;
+  --theme-elevation-150: #4c4035;
+  --theme-elevation-200: #5f5042;
+  --theme-elevation-250: #776554;
+  --theme-elevation-300: #8a755d;
+  --theme-elevation-400: #ceb78d;
+  --theme-elevation-500: #dcc8a1;
+  --theme-elevation-600: #eadbbd;
+  --theme-elevation-800: #fffaf1;
+
+  --theme-success-250: #2b382d;
+  --theme-success-500: #86a389;
+
+  color: var(--theme-elevation-800) !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select,
+html[data-theme="dark"] .field-type label {
+  color: #fffaf1 !important;
+}
+
 
 .apadac-admin-site-link {
   margin-top: 1rem;
@@ -38,9 +72,7 @@
   color: #243424;
   font-weight: 700;
   text-decoration: none;
-  transition:
-    transform 0.15s ease,
-    filter 0.15s ease;
+  transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .apadac-admin-site-link__anchor:hover {
