@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { getCMS } from "@/lib/payload";
 import type { ApadacInfoContent } from "@/lib/apadac-info";
 
 type ApadacAboutSectionProps = {
@@ -49,9 +50,36 @@ const Paw = ({ className }: { className: string }) => (
   </svg>
 );
 
-export function ApadacAboutSection({ compact = false, content }: ApadacAboutSectionProps) {
+export async function ApadacAboutSection({ compact = false, content }: ApadacAboutSectionProps) {
   const missionCards = compact ? content.missionCards.slice(0, 4) : content.missionCards;
   const TitleTag = compact ? "h2" : "h1";
+
+  const payload = await getCMS();
+  
+  const [usersReq, waitingReq] = await Promise.all([
+    payload.find({ collection: "users", limit: 0, depth: 0 }),
+    payload.find({ 
+      collection: "animals", limit: 0, depth: 0, 
+      where: { status: { in: ["en_adopcion", "urgente"] } } 
+    }),
+  ]);
+
+  const dynamicStats = content.stats.map((stat) => {
+    const labelLower = stat.label.toLowerCase();
+    
+    // On conserve toujours la valeur du CMS (le chiffre de base)
+    let dynamicValue = stat.value; 
+
+    // On ne met à jour dynamiquement QUE les champs spécifiques demandés initialement
+    if (labelLower.includes("voluntari")) {
+      dynamicValue = `+${usersReq.totalDocs}`; 
+    } else if (labelLower.includes("espera") || labelLower.includes("refugio") || labelLower.includes("buscando")) {
+      dynamicValue = `${waitingReq.totalDocs}`; 
+    }
+
+    // Pour "adoptados", "rescatados" et "recuperados", on retourne "stat.value" tel quel (le chiffre qui était là)
+    return { ...stat, value: dynamicValue };
+  });
 
   return (
     <div className={compact ? "space-y-7" : "space-y-12"}>
@@ -108,7 +136,7 @@ export function ApadacAboutSection({ compact = false, content }: ApadacAboutSect
           </div>
 
           <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:col-start-2 lg:grid-cols-2 xl:col-start-auto">
-            {content.stats.map((stat, index) => (
+            {dynamicStats.map((stat, index) => (
               <article
                 className="apadac-stat-card apadac-rise min-w-0 rounded-[1.5rem] border border-white/28 bg-white/16 p-4 text-white shadow-[0_18px_60px_rgba(0,0,0,0.16)] backdrop-blur transition-transform duration-200 hover:-translate-y-1 focus-within:-translate-y-1 sm:p-5"
                 key={stat.label}
