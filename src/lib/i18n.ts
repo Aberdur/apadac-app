@@ -508,7 +508,7 @@ const dictionaries = {
         "Here are the animals still looking for ongoing support. Sponsoring does not replace adoption, but it helps cover care, food and veterinary needs.",
       title: "Animals still looking for a sponsor",
       viewAnimal: (name: string) => `See ${name}`,
-      viewHelp: "Back to how to help",
+      viewHelp: "See other ways to help",
     },
     successPage: {
       emptyButton: "See animals for adoption",
