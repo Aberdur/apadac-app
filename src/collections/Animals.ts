@@ -10,7 +10,6 @@ import type {
 
 import { hasStaffRole } from "@/lib/security";
 
-// 1. On modifie le slugify pour qu'il supprime aussi les chiffres (0-9)
 const slugify = (value: string) =>
   value
     .toLowerCase()
@@ -23,25 +22,25 @@ const slugify = (value: string) =>
 // VALIDATIONS PERSONNALISÉES
 // ---------------------------------------------------------
 
-const validateNoNumbersRequired = (value: string | null | undefined) => {
-  if (!value || value.trim() === "") return "Este campo es obligatorio.";
-  if (/\d/.test(value)) return "Este campo no puede contener números.";
+const validateNoNumbersRequired = (value: any): string | true => {
+  if (!value || String(value).trim() === "") return "Este campo es obligatorio. / This field is required.";
+  if (/\d/.test(String(value))) return "Este campo no puede contener números. / This field cannot contain numbers.";
   return true;
 };
 
-const validateNoNumbersOptional = (value: string | null | undefined) => {
-  if (value && /\d/.test(value)) return "Este campo no puede contener números.";
+const validateNoNumbersOptional = (value: any): string | true => {
+  if (value && /\d/.test(String(value))) return "Este campo no puede contener números. / This field cannot contain numbers.";
   return true;
 };
 
-const validateDateRequired = (value: Date | string | null | undefined) => {
+const validateDateRequired = (value: any): string | true => {
   if (!value) return "Este campo es obligatorio. / This field is required.";
   const date = new Date(value);
   if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida. / This field must contain a valid date.";
   return true;
 };
 
-const validateDateOptional = (value: Date | string | null | undefined) => {
+const validateDateOptional = (value: any): string | true => {
   if (value) {
     const date = new Date(value);
     if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida. / This field must contain a valid date.";
@@ -70,35 +69,19 @@ const canDeleteAnimals: Access = ({ req: { user } }) =>
 const canReadInternalAnimalField: FieldAccess = ({ req: { user } }) => hasStaffRole(user);
 
 const getRelationshipID = (value: unknown): number | string | null => {
-  if (!value) {
-    return null;
-  }
-
-  if (typeof value === "string" || typeof value === "number") {
-    return value;
-  }
-
+  if (!value) return null;
+  if (typeof value === "string" || typeof value === "number") return value;
   if (typeof value === "object" && "id" in value) {
     const candidate = (value as { id?: number | string }).id;
-
-    return typeof candidate === "string" || typeof candidate === "number"
-      ? candidate
-      : null;
+    return typeof candidate === "string" || typeof candidate === "number" ? candidate : null;
   }
-
   return null;
 };
 
-type SelectedMedia = {
-  id: number | string;
-  fallbackAlt: string;
-};
+type SelectedMedia = { id: number | string; fallbackAlt: string; };
 
 const getMediaAltName = (name: unknown) => {
-  if (typeof name !== "string") {
-    return "animal";
-  }
-
+  if (typeof name !== "string") return "animal";
   return name.trim().replace(/\s+/g, "_") || "animal";
 };
 
@@ -108,36 +91,24 @@ const getSelectedMedia = (doc: Record<string, unknown>): SelectedMedia[] => {
   const coverID = getRelationshipID(doc.coverImage);
 
   if (coverID) {
-    media.set(coverID, {
-      fallbackAlt: `${animalName}_portada`,
-      id: coverID,
-    });
+    media.set(coverID, { fallbackAlt: `${animalName}_portada`, id: coverID });
   }
 
   if (Array.isArray(doc.gallery)) {
     let galleryIndex = 1;
-
     doc.gallery.forEach((item) => {
       const id = getRelationshipID(item);
-
       if (id && !media.has(id)) {
-        media.set(id, {
-          fallbackAlt: `${animalName}_${galleryIndex}`,
-          id,
-        });
+        media.set(id, { fallbackAlt: `${animalName}_${galleryIndex}`, id });
         galleryIndex += 1;
       }
     });
   }
-
   return [...media.values()];
 };
 
 const syncMediaOwnership: CollectionAfterChangeHook = async ({ doc, req }) => {
-  if (typeof doc.name !== "string" || doc.name.trim().length === 0) {
-    return doc;
-  }
-
+  if (typeof doc.name !== "string" || doc.name.trim().length === 0) return doc;
   const selectedMedia = getSelectedMedia(doc as Record<string, unknown>);
   const selectedMediaIDs = selectedMedia.map((media) => media.id);
   const currentMedia = await req.payload.find({
@@ -146,85 +117,44 @@ const syncMediaOwnership: CollectionAfterChangeHook = async ({ doc, req }) => {
     limit: 200,
     overrideAccess: true,
     pagination: false,
-    where: {
-      animal: {
-        equals: doc.id,
-      },
-    },
+    where: { animal: { equals: doc.id } },
   });
 
   const currentMediaIDs = new Set(currentMedia.docs.map((item) => item.id));
 
   for (const media of selectedMedia) {
-    const current = await req.payload.findByID({
-      id: media.id,
-      collection: "media",
-      depth: 0,
-      overrideAccess: true,
-    });
-    const updateData: Record<string, unknown> = {
-      animal: doc.id,
-    };
-
-    if (typeof current.alt !== "string" || current.alt.trim().length === 0) {
-      updateData.alt = media.fallbackAlt;
-    }
-
-    await req.payload.update({
-      id: media.id,
-      collection: "media",
-      data: updateData,
-      overrideAccess: true,
-    });
+    const current = await req.payload.findByID({ id: media.id, collection: "media", depth: 0, overrideAccess: true });
+    const updateData: Record<string, unknown> = { animal: doc.id };
+    if (typeof current.alt !== "string" || current.alt.trim().length === 0) updateData.alt = media.fallbackAlt;
+    await req.payload.update({ id: media.id, collection: "media", data: updateData, overrideAccess: true });
   }
 
   for (const media of currentMedia.docs) {
     if (!selectedMediaIDs.includes(media.id)) {
-      await req.payload.update({
-        id: media.id,
-        collection: "media",
-        data: {
-          animal: null,
-        },
-        overrideAccess: true,
-      });
+      await req.payload.update({ id: media.id, collection: "media", data: { animal: null }, overrideAccess: true });
     }
   }
-
-  return {
-    ...doc,
-    _syncedMediaCount: currentMediaIDs.size,
-  };
+  return { ...doc, _syncedMediaCount: currentMediaIDs.size };
 };
 
 const ensureAnimalDossier: CollectionAfterChangeHook = async ({ doc, req }) => {
-  if (typeof doc.name !== "string" || doc.name.trim().length === 0) {
-    return doc;
-  }
-
+  if (typeof doc.name !== "string" || doc.name.trim().length === 0) return doc;
   const existingDossiers = await req.payload.find({
     collection: "animal-dossiers",
     depth: 0,
     limit: 1,
     overrideAccess: true,
     pagination: false,
-    where: {
-      animal: {
-        equals: doc.id,
-      },
-    },
+    where: { animal: { equals: doc.id } },
   });
 
   if (existingDossiers.docs.length === 0) {
     await req.payload.create({
       collection: "animal-dossiers",
-      data: {
-        animal: doc.id,
-      },
+      data: { animal: doc.id },
       overrideAccess: true,
     });
   }
-
   return doc;
 };
 
@@ -235,22 +165,10 @@ const clearMediaOwnership: CollectionAfterDeleteHook = async ({ id, req }) => {
     limit: 200,
     overrideAccess: true,
     pagination: false,
-    where: {
-      animal: {
-        equals: id,
-      },
-    },
+    where: { animal: { equals: id } },
   });
-
   for (const media of linkedMedia.docs) {
-    await req.payload.update({
-      id: media.id,
-      collection: "media",
-      data: {
-        animal: null,
-      },
-      overrideAccess: true,
-    });
+    await req.payload.update({ id: media.id, collection: "media", data: { animal: null }, overrideAccess: true });
   }
 };
 
@@ -261,43 +179,17 @@ const deleteAnimalDossiers: CollectionAfterDeleteHook = async ({ id, req }) => {
     limit: 20,
     overrideAccess: true,
     pagination: false,
-    where: {
-      animal: {
-        equals: id,
-      },
-    },
+    where: { animal: { equals: id } },
   });
-
   for (const dossier of dossiers.docs) {
-    await req.payload.delete({
-      id: dossier.id,
-      collection: "animal-dossiers",
-      overrideAccess: true,
-    });
+    await req.payload.delete({ id: dossier.id, collection: "animal-dossiers", overrideAccess: true });
   }
 };
 
 const mediaFilterForAnimal = ({ id }: { id?: number | string }): Where =>
   id
-    ? ({
-        or: [
-          {
-            animal: {
-              equals: id,
-            },
-          },
-          {
-            animal: {
-              equals: null,
-            },
-          },
-        ],
-      } as Where)
-    : ({
-        animal: {
-          equals: null,
-        },
-      } as Where);
+    ? ({ or: [{ animal: { equals: id } }, { animal: { equals: null } }] } as Where)
+    : ({ animal: { equals: null } } as Where);
 
 export const Animals: CollectionConfig = {
   slug: "animals",
@@ -321,7 +213,7 @@ export const Animals: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
-          label: "Información Básica",
+          label: { es: "Información Básica", en: "Basic Information" },
           fields: [
             {
               type: "row",
@@ -329,7 +221,7 @@ export const Animals: CollectionConfig = {
                 {
                   name: "name",
                   type: "text",
-                  label: "Nombre",
+                  label: { es: "Nombre", en: "Name" },
                   required: true,
                   validate: validateNoNumbersRequired, 
                 },
@@ -337,18 +229,17 @@ export const Animals: CollectionConfig = {
                   name: "slug",
                   type: "text",
                   admin: {
-                    description: "Se genera automáticamente a partir del nombre si lo dejas vacío.",
+                    description: { 
+                      es: "Se genera automáticamente a partir del nombre si lo dejas vacío.",
+                      en: "Automatically generated from the name if left empty."
+                    },
                   },
                   validate: validateNoNumbersRequired, 
                   hooks: {
                     beforeValidate: [
                       ({ data, value }) => {
-                        if (typeof value === "string" && value.length > 0) {
-                          return slugify(value);
-                        }
-                        if (typeof data?.name === "string") {
-                          return slugify(data.name);
-                        }
+                        if (typeof value === "string" && value.length > 0) return slugify(value);
+                        if (typeof data?.name === "string") return slugify(data.name);
                         return value;
                       },
                     ],
@@ -366,17 +257,17 @@ export const Animals: CollectionConfig = {
                   name: "species",
                   type: "select",
                   defaultValue: "perro",
-                  label: "Especie",
+                  label: { es: "Especie", en: "Species" },
                   options: [
-                    { label: "Perro", value: "perro" },
-                    { label: "Gato", value: "gato" },
+                    { label: { es: "Perro", en: "Dog" }, value: "perro" },
+                    { label: { es: "Gato", en: "Cat" }, value: "gato" },
                   ],
                   required: true,
                 },
                 {
                   name: "breed",
                   type: "text",
-                  label: "Raza",
+                  label: { es: "Raza", en: "Breed" },
                   validate: validateNoNumbersOptional, 
                 },
               ],
@@ -387,19 +278,19 @@ export const Animals: CollectionConfig = {
                 {
                   name: "sex",
                   type: "select",
-                  label: "Sexo",
+                  label: { es: "Sexo", en: "Sex" },
                   options: [
-                    { label: "Macho", value: "macho" },
-                    { label: "Hembra", value: "hembra" },
+                    { label: { es: "Macho", en: "Male" }, value: "macho" },
+                    { label: { es: "Hembra", en: "Female" }, value: "hembra" },
                   ],
                   required: true,
                 },
                 {
                   name: "age",
-                  type: "date", // Passé en format date
-                  label: "Edad aproximada",
+                  type: "date",
+                  label: { es: "Edad aproximada", en: "Approximate age" },
                   required: true,
-                  validate: validateDateRequired, // Nouvelle validation
+                  validate: validateDateRequired, 
                 },
               ],
             },
@@ -409,22 +300,22 @@ export const Animals: CollectionConfig = {
                 {
                   name: "size",
                   type: "select",
-                  label: "Tamaño",
+                  label: { es: "Tamaño", en: "Size" },
                   options: [
-                    { label: "Pequeño", value: "pequeno" },
-                    { label: "Mediano", value: "mediano" },
-                    { label: "Grande", value: "grande" },
+                    { label: { es: "Pequeño", en: "Small" }, value: "pequeno" },
+                    { label: { es: "Mediano", en: "Medium" }, value: "mediano" },
+                    { label: { es: "Grande", en: "Large" }, value: "grande" },
                   ],
                   required: true,
                 },
                 {
                   name: "energyLevel",
                   type: "select",
-                  label: "Nivel de energía",
+                  label: { es: "Nivel de energía", en: "Energy level" },
                   options: [
-                    { label: "Baja", value: "tranquila" },
-                    { label: "Media", value: "equilibrada" },
-                    { label: "Alta", value: "activa" },
+                    { label: { es: "Baja", en: "Low" }, value: "tranquila" },
+                    { label: { es: "Media", en: "Medium" }, value: "equilibrada" },
+                    { label: { es: "Alta", en: "High" }, value: "activa" },
                   ],
                 },
               ],
@@ -432,44 +323,44 @@ export const Animals: CollectionConfig = {
             {
               name: "location",
               type: "text",
-              label: "Zona / ubicación",
+              label: { es: "Zona / ubicación", en: "Location / Area" },
             },
           ],
         },
         {
-          label: "Descripción e Historia",
+          label: { es: "Descripción e Historia", en: "Description & History" },
           fields: [
             {
               name: "summary",
               type: "textarea",
-              label: "Resumen",
+              label: { es: "Resumen", en: "Summary" },
               required: true,
             },
             {
               name: "story",
               type: "richText",
               editor: lexicalEditor(),
-              label: "Historia completa",
+              label: { es: "Historia completa", en: "Full story" },
             },
             {
               name: "temperament",
               type: "textarea",
-              label: "Carácter",
+              label: { es: "Carácter", en: "Temperament" },
             },
             {
               name: "adoptionRequirements",
               type: "textarea",
-              label: "Requisitos o notas para adopción",
+              label: { es: "Requisitos o notas para adopción", en: "Adoption requirements or notes" },
             },
           ],
         },
         {
-          label: "Salud y Compatibilidad",
+          label: { es: "Salud y Compatibilidad", en: "Health & Compatibility" },
           fields: [
             {
               name: "health",
               type: "textarea",
-              label: "Salud",
+              label: { es: "Salud", en: "Health" },
             },
             {
               type: "row",
@@ -478,19 +369,19 @@ export const Animals: CollectionConfig = {
                   name: "goodWithDogs",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Compatible con perros",
+                  label: { es: "Compatible con perros", en: "Good with dogs" },
                 },
                 {
                   name: "goodWithCats",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Compatible con gatos",
+                  label: { es: "Compatible con gatos", en: "Good with cats" },
                 },
                 {
                   name: "goodWithKids",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Compatible con niños",
+                  label: { es: "Compatible con niños", en: "Good with kids" },
                 },
               ],
             },
@@ -501,42 +392,44 @@ export const Animals: CollectionConfig = {
                   name: "vaccinated",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Vacunado/a",
+                  label: { es: "Vacunado/a", en: "Vaccinated" },
                 },
                 {
                   name: "sterilized",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Esterilizado/a",
+                  label: { es: "Esterilizado/a", en: "Sterilized" },
                 },
                 {
                   name: "specialNeeds",
                   type: "checkbox",
                   defaultValue: false,
-                  label: "Necesidades especiales",
+                  label: { es: "Necesidades especiales", en: "Special needs" },
                 },
               ],
             },
           ],
         },
         {
-          label: "Multimedia",
+          label: { es: "Multimedia", en: "Media" },
           fields: [
             {
               name: "featured",
               type: "checkbox",
               defaultValue: false,
-              label: "Destacar en portada",
+              label: { es: "Destacar en portada", en: "Feature on homepage" },
             },
             {
               name: "coverImage",
               admin: {
                 allowCreate: true,
-                description:
-                  "Sube la portada desde aquí. La imagen se asociará automáticamente al guardar la ficha.",
+                description: {
+                  es: "Sube la portada desde aquí. La imagen se asociará automáticamente al guardar la ficha.",
+                  en: "Upload the cover here. The image will be linked automatically when saving."
+                },
               },
               filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
-              label: "Imagen principal",
+              label: { es: "Imagen principal", en: "Main image" },
               relationTo: "media",
               type: "upload",
             },
@@ -544,36 +437,40 @@ export const Animals: CollectionConfig = {
               name: "gallery",
               admin: {
                 allowCreate: true,
-                description:
-                  "Sube aquí el resto de fotos. Quedarán asociadas automáticamente al guardar la ficha.",
+                description: {
+                  es: "Sube aquí el resto de fotos. Quedarán asociadas automáticamente al guardar la ficha.",
+                  en: "Upload the rest of the photos here. They will be linked automatically when saving."
+                },
                 isSortable: true,
               },
               filterOptions: ({ id }) => mediaFilterForAnimal({ id }),
               hasMany: true,
-              label: "Galería",
+              label: { es: "Galería", en: "Gallery" },
               relationTo: "media",
               type: "upload",
             },
           ],
         },
         {
-          label: "Administración",
+          label: { es: "Administración", en: "Administration" },
           fields: [
             {
               name: "status",
               type: "select",
               admin: {
-                description:
-                  "“Baja interna” mantiene la ficha en la base de datos pero la oculta de la web pública. Úsalo para casos sensibles o animales que no deban seguir visibles.",
+                description: {
+                  es: "“Baja interna” mantiene la ficha en la base de datos pero la oculta de la web pública. Úsalo para casos sensibles o animales que no deban seguir visibles.",
+                  en: "“Internal removal” keeps the record in the database but hides it from the public website. Use for sensitive cases or animals that shouldn't be visible anymore."
+                },
               },
               defaultValue: "en_adopcion",
-              label: "Estado",
+              label: { es: "Estado", en: "Status" },
               options: [
-                { label: "En adopción", value: "en_adopcion" },
+                { label: { es: "En adopción", en: "For adoption" }, value: "en_adopcion" },
                 { label: "Urgente", value: "urgente" },
                 { label: "En acogida", value: "acogida" },
                 { label: "Reservado", value: "reservado" },
-                { label: "Adoptado", value: "adoptado" },
+                { label: "Adoptado", value: "adopted" },
                 { label: "Baja interna (oculto en web)", value: "baja_interna" },
                 { label: "Recuperado por su familia", value: "recuperado" },
               ],
@@ -585,14 +482,14 @@ export const Animals: CollectionConfig = {
                 {
                   name: "entryDate",
                   type: "date",
-                  label: "Fecha de entrada",
+                  label: { es: "Fecha de entrada", en: "Entry date" },
                   required: true,
                   validate: validateDateRequired, 
                 },
                 {
                   name: "adoptionDate",
                   type: "date",
-                  label: "Fecha de adopción",
+                  label: { es: "Fecha de adopción", en: "Adoption date" },
                   validate: validateDateOptional, 
                 },
               ],
@@ -601,12 +498,12 @@ export const Animals: CollectionConfig = {
               name: "sponsored",
               type: "checkbox",
               defaultValue: false,
-              label: "Apadrinado/a",
+              label: { es: "Apadrinado/a", en: "Sponsored" },
             },
             {
               name: "adoptionContact",
               type: "email",
-              label: "Email de contacto",
+              label: { es: "Email de contacto", en: "Contact email" },
               access: {
                 create: canReadInternalAnimalField,
                 read: canReadInternalAnimalField,
@@ -619,8 +516,8 @@ export const Animals: CollectionConfig = {
     },
   ],
   labels: {
-    plural: "Animales",
-    singular: "Animal",
+    plural: { es: "Animales", en: "Animals" },
+    singular: { es: "Animal", en: "Animal" },
   },
   versions: {
     drafts: false,

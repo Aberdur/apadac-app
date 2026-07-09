@@ -5,6 +5,9 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import { fileURLToPath } from "url";
 
+import { es } from '@payloadcms/translations/languages/es';
+import { en } from '@payloadcms/translations/languages/en';
+
 import { AnimalDossiers } from "./collections/AnimalDossiers";
 import { AnimalFiles } from "./collections/AnimalFiles";
 import { Animals } from "./collections/Animals";
@@ -19,6 +22,10 @@ const dirname = path.dirname(filename);
 const uploadFileSizeLimit = 50 * 1024 * 1024;
 
 export default buildConfig({
+  i18n: {
+    supportedLanguages: { es, en },
+    fallbackLanguage: 'es',
+  },
   admin: {
     components: {
       afterNavLinks: [
@@ -34,11 +41,11 @@ export default buildConfig({
     user: Users.slug,
   },
   // ACTIVATION DU MULTILINGUISME DANS LE CMS
-  localization: {
+  /*localization: {
     locales: ["es", "en", "de"],
     defaultLocale: "es",
     fallback: true, // Si un texte n'est pas traduit en anglais, il affichera l'espagnol par défaut
-  },
+  },*/
   collections: [Users, Media, AnimalFiles, Animals, AnimalDossiers, Announcements],
   globals: [HelpSettings],
   db: sqliteAdapter({
