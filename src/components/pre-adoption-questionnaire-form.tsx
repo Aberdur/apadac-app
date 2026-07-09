@@ -4,8 +4,8 @@ import { useMemo, useState, useTransition } from "react";
 
 import type { Locale } from "@/lib/i18n";
 import {
-  preAdoptionQuestionnaireFields,
-  preAdoptionQuestionnaireSections,
+  getPreAdoptionQuestionnaireFields,
+  getPreAdoptionQuestionnaireSections,
   type PreAdoptionField,
 } from "@/lib/pre-adoption-questionnaire";
 
@@ -18,113 +18,120 @@ const RequiredMark = () => <span className="ml-1 text-[var(--coral)]">*</span>;
 
 const copyByLocale = {
   de: {
-    consent:
-      "Ich bestätige, dass die Angaben wahr sind und APADAC mich zum Adoptionsprozess kontaktieren darf.",
+    consent: "Ich bestätige, dass die Angaben wahr sind und APADAC mich zum Adoptionsprozess kontaktieren darf.",
     error: "Das Formular konnte nicht gesendet werden. Prüfe die Felder oder versuche es später erneut.",
     pending: "Wird gesendet...",
     send: "Fragebogen senden",
-    sentText:
-      "Der Fragebogen wurde gesendet. APADAC erhält deine Antworten per E-Mail und kann den Adoptionsprozess prüfen.",
+    sentText: "Der Fragebogen wurde gesendet. APADAC erhält deine Antworten per E-Mail und kann den Adoptionsprozess prüfen.",
     sentTitle: "Fragebogen gesendet",
-    subtitle:
-      "Dieses Formular ist unabhängig von der Anfrage in einer Tierakte. Es dient dazu, deine Situation vorab kennenzulernen.",
-    title: "Cuestionario pre adopción",
+    subtitle: "Dieses Formular ist unabhängig von der Anfrage in einer Tierakte. Es dient dazu, deine Situation vorab kennenzulernen.",
+    title: "Voranfrage",
+    independentForm: "Unabhängiges Formular",
+    blocks: "Abschnitte",
+    keyFields: "Pflichtfelder",
+    emailTo: "E-Mail an APADAC",
+    blockPrefix: "Abschnitt",
+    selectOption: "Wähle eine Option",
+    startTyping: "Beginne den Namen zu tippen...",
+    requiredFooter: "Mit * markierte Felder sind erforderlich, um den Fragebogen korrekt auszuwerten.",
   },
   en: {
-    consent:
-      "I confirm that the information is accurate and that APADAC may contact me about the adoption process.",
+    consent: "I confirm that the information is accurate and that APADAC may contact me about the adoption process.",
     error: "The form could not be sent. Please check the fields or try again later.",
     pending: "Sending...",
     send: "Send questionnaire",
-    sentText:
-      "The questionnaire has been sent. APADAC will receive your answers by email and can review the adoption process.",
+    sentText: "The questionnaire has been sent. APADAC will receive your answers by email and can review the adoption process.",
     sentTitle: "Questionnaire sent",
-    subtitle:
-      "This form is separate from the request inside a specific animal profile. It helps APADAC understand your situation beforehand.",
+    subtitle: "This form is separate from the request inside a specific animal profile. It helps APADAC understand your situation beforehand.",
     title: "Pre-adoption questionnaire",
+    independentForm: "Separate form",
+    blocks: "sections",
+    keyFields: "key fields",
+    emailTo: "email to APADAC",
+    blockPrefix: "Section",
+    selectOption: "Select an option",
+    startTyping: "Start typing the name...",
+    requiredFooter: "Fields marked with * are required to correctly evaluate the questionnaire.",
   },
   es: {
-    consent:
-      "Confirmo que la información es veraz y que APADAC puede contactar conmigo sobre el proceso de adopción.",
+    consent: "Confirmo que la información es veraz y que APADAC puede contactar conmigo sobre el proceso de adopción.",
     error: "No se ha podido enviar el cuestionario. Revisa los campos o inténtalo más tarde.",
     pending: "Enviando...",
     send: "Enviar cuestionario",
-    sentText:
-      "El cuestionario se ha enviado correctamente. APADAC recibirá tus respuestas por correo y podrá valorar el proceso de adopción.",
+    sentText: "El cuestionario se ha enviado correctamente. APADAC recibirá tus respuestas por correo y podrá valorar el proceso de adopción.",
     sentTitle: "Cuestionario enviado",
-    subtitle:
-      "Este formulario es independiente de la solicitud que aparece dentro de la ficha de cada animal. Sirve para conocer tu situación antes de avanzar.",
+    subtitle: "Este formulario es independiente de la solicitud que aparece dentro de la ficha de cada animal. Sirve para conocer tu situación antes de avanzar.",
     title: "Cuestionario pre adopción",
+    independentForm: "Formulario independiente",
+    blocks: "bloques",
+    keyFields: "campos clave",
+    emailTo: "correo a APADAC",
+    blockPrefix: "Bloque",
+    selectOption: "Selecciona una opción",
+    startTyping: "Empieza a escribir el nombre...",
+    requiredFooter: "Los campos marcados con * son necesarios para valorar correctamente el cuestionario.",
   },
-} satisfies Record<
-  Locale,
-  {
-    consent: string;
-    error: string;
-    pending: string;
-    send: string;
-    sentText: string;
-    sentTitle: string;
-    subtitle: string;
-    title: string;
-  }
->;
-
-const renderField = (field: PreAdoptionField, animals: string[] = []) => {
-  const baseClass =
-    "w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--olive)]";
-  const wrapperClass = field.wide ? "space-y-2 text-sm md:col-span-2" : "space-y-2 text-sm";
-
-  return (
-    <label className={wrapperClass} key={field.name}>
-      <span className="font-semibold">
-        {field.label}
-        {field.required ? <RequiredMark /> : null}
-      </span>
-      {field.type === "textarea" ? (
-        <textarea className={`${baseClass} min-h-28 leading-7`} name={field.name} required={field.required} />
-      ) : field.type === "select" ? (
-        <select className={baseClass} defaultValue="" name={field.name} required={field.required}>
-          <option value="" disabled>Selecciona una opción</option>
-          {field.options?.map((option) => (
-            <option key={option} value={option}>{option}</option>
-          ))}
-        </select>
-      ) : field.type === "animal-autocomplete" ? (
-        <>
-          <input
-            className={baseClass}
-            name={field.name}
-            required={field.required}
-            type="text"
-            list="animal-names-list"
-            autoComplete="off"
-            placeholder="Empieza a escribir el nombre..."
-          />
-          <datalist id="animal-names-list">
-            {animals.map((animalName) => (
-              <option key={animalName} value={animalName} />
-            ))}
-          </datalist>
-        </>
-      ) : (
-        <input className={baseClass} name={field.name} required={field.required} type={field.type || "text"} />
-      )}
-      {field.help ? <span className="block text-xs leading-5 text-[var(--muted)]">{field.help}</span> : null}
-    </label>
-  );
 };
 
 export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdoptionQuestionnaireFormProps) {
-
   const copy = copyByLocale[locale];
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  // Utilisation des données localisées
+  const sections = getPreAdoptionQuestionnaireSections(locale);
+  const fields = getPreAdoptionQuestionnaireFields(locale);
+
   const totalRequired = useMemo(
-    () => preAdoptionQuestionnaireFields.filter((field) => field.required).length,
-    [],
+    () => fields.filter((field) => field.required).length,
+    [fields],
   );
+
+  const renderField = (field: PreAdoptionField, animalsList: string[] = []) => {
+    const baseClass =
+      "w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm outline-none focus:border-[var(--olive)]";
+    const wrapperClass = field.wide ? "space-y-2 text-sm md:col-span-2" : "space-y-2 text-sm";
+  
+    return (
+      <label className={wrapperClass} key={field.name}>
+        <span className="font-semibold">
+          {field.label}
+          {field.required ? <RequiredMark /> : null}
+        </span>
+        {field.type === "textarea" ? (
+          <textarea className={`${baseClass} min-h-28 leading-7`} name={field.name} required={field.required} />
+        ) : field.type === "select" ? (
+          <select className={baseClass} defaultValue="" name={field.name} required={field.required}>
+            <option value="" disabled>{copy.selectOption}</option>
+            {field.options?.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        ) : field.type === "animal-autocomplete" ? (
+          <>
+            <input
+              className={baseClass}
+              name={field.name}
+              required={field.required}
+              type="text"
+              list="animal-names-list"
+              autoComplete="off"
+              placeholder={copy.startTyping}
+            />
+            <datalist id="animal-names-list">
+              {animalsList.map((animalName) => (
+                <option key={animalName} value={animalName} />
+              ))}
+            </datalist>
+          </>
+        ) : (
+          <input className={baseClass} name={field.name} required={field.required} type={field.type || "text"} />
+        )}
+        {field.help ? <span className="block text-xs leading-5 text-[var(--muted)]">{field.help}</span> : null}
+      </label>
+    );
+  };
 
   return (
     <section
@@ -134,7 +141,7 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
       <div className="grid gap-6 border-b border-[var(--line)] bg-[linear-gradient(135deg,rgba(240,196,173,0.34),rgba(216,195,224,0.28))] p-7 lg:grid-cols-[1.1fr_0.9fr] lg:p-9">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--olive)]">
-            Formulario independiente
+            {copy.independentForm}
           </p>
           <h2 className="display-font mt-3 text-4xl leading-none sm:text-5xl">{copy.title}</h2>
           <p className="mt-4 max-w-3xl text-sm leading-8 text-[var(--muted)]">{copy.subtitle}</p>
@@ -142,22 +149,22 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
           <div className="rounded-[1.4rem] border border-white/70 bg-white/75 p-4">
             <p className="text-3xl font-bold text-[var(--olive-deep)]">
-              {preAdoptionQuestionnaireSections.length}
+              {sections.length}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-              bloques
+              {copy.blocks}
             </p>
           </div>
           <div className="rounded-[1.4rem] border border-white/70 bg-white/75 p-4">
             <p className="text-3xl font-bold text-[var(--olive-deep)]">{totalRequired}</p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-              campos clave
+              {copy.keyFields}
             </p>
           </div>
           <div className="rounded-[1.4rem] border border-white/70 bg-white/75 p-4">
             <p className="text-3xl font-bold text-[var(--olive-deep)]">1</p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-              correo a APADAC
+              {copy.emailTo}
             </p>
           </div>
         </div>
@@ -182,7 +189,7 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
 
             startTransition(async () => {
               const values = Object.fromEntries(
-                preAdoptionQuestionnaireFields.map((field) => [
+                fields.map((field) => [
                   field.name,
                   String(data.get(field.name) || ""),
                 ]),
@@ -212,14 +219,14 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
         >
           <input autoComplete="off" className="hidden" name="website" tabIndex={-1} />
 
-          {preAdoptionQuestionnaireSections.map((section, index) => (
+          {sections.map((section, index) => (
             <article
               className="overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-white/75 shadow-[0_14px_45px_rgba(111,83,100,0.08)]"
               key={section.title}
             >
               <div className="border-b border-[var(--line)] bg-[linear-gradient(90deg,rgba(240,196,173,0.34),rgba(216,195,224,0.18))] p-5 sm:p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--olive)]">
-                  Bloque {index + 1}
+                  {copy.blockPrefix} {index + 1}
                 </p>
                 <h3 className="display-font mt-2 text-3xl leading-none">{section.title}</h3>
                 <p className="mt-3 max-w-4xl text-sm leading-7 text-[var(--muted)]">
@@ -253,8 +260,9 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
               {isPending ? copy.pending : copy.send}
             </button>
             <p className="text-xs leading-6 text-[var(--muted)]">
-              Los campos marcados con <span className="text-[var(--coral)]">*</span> son necesarios
-              para valorar correctamente el cuestionario.
+              {copy.requiredFooter.split("*")[0]}
+              <span className="text-[var(--coral)]">*</span>
+              {copy.requiredFooter.split("*")[1]}
             </p>
           </div>
         </form>

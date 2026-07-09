@@ -34,17 +34,17 @@ const validateNoNumbersOptional = (value: string | null | undefined) => {
   return true;
 };
 
-const validateDateRequired = (value: string | null | undefined) => {
-  if (!value) return "Este campo es obligatorio.";
+const validateDateRequired = (value: Date | string | null | undefined) => {
+  if (!value) return "Este campo es obligatorio. / This field is required.";
   const date = new Date(value);
-  if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida.";
+  if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida. / This field must contain a valid date.";
   return true;
 };
 
-const validateDateOptional = (value: string | null | undefined) => {
+const validateDateOptional = (value: Date | string | null | undefined) => {
   if (value) {
     const date = new Date(value);
-    if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida.";
+    if (isNaN(date.getTime())) return "Este campo debe contener únicamente una fecha válida. / This field must contain a valid date.";
   }
   return true;
 };
@@ -623,6 +623,6 @@ export const Animals: CollectionConfig = {
     singular: "Animal",
   },
   versions: {
-    drafts: true,
+    drafts: false,
   },
 };

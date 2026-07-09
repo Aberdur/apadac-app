@@ -4,61 +4,114 @@ import { getDictionary } from "@/lib/i18n";
 import { getLocale } from "@/lib/i18n-server";
 
 export const metadata = {
-  title: "Cómo ayudar | APADAC",
+  title: "How to help | APADAC",
 };
 
-const collaborationCards = [
-  {
-    badge: "Veterinario, alimento y urgencias",
-    body: "Una aportación puntual ayuda a cubrir tratamientos, medicación, pienso, desparasitaciones, pruebas y rescates.",
-    cta: "Ver formas de donar",
-    eyebrow: "Aportación directa",
-    href: "/donaciones#donar",
-    icon: "M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z",
-    title: "Dona",
-  },
-  {
-    badge: "Ayuda estable cada mes",
-    body: "Ser socio permite planificar gastos fijos y sostener casos que necesitan atención durante semanas o meses.",
-    cta: "Hazte socio",
-    eyebrow: "Compromiso continuado",
-    href: "/donaciones#socio",
-    icon: "M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z",
-    title: "Hazte socio",
-  },
-  {
-    badge: "Un hogar temporal",
-    body: "La acogida libera espacio, reduce estrés y permite conocer mejor al animal mientras aparece una adopción.",
-    cta: "Ser casa de acogida",
-    eyebrow: "Acogida temporal",
-    href: "/voluntariado#acogida",
-    icon: "M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-8.5Z",
-    title: "Casa de acogida",
-  },
-  {
-    badge: "Apoyo con nombre propio",
-    body: "Apadrinar ayuda a cubrir necesidades de un animal concreto, especialmente si requiere cuidados especiales.",
-    cta: "Ver apadrinamiento",
-    eyebrow: "Para largas estancias",
-    href: "/apadrina",
-    icon: "M8 12h8M12 8v8M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Z",
-    title: "Apadrina",
-  },
-  {
-    badge: "Tiempo, manos y presencia",
-    body: "Paseos, traslados, eventos, limpieza, difusión o apoyo organizativo. Cada hora dedicada cuenta.",
-    cta: "Hacer voluntariado",
-    eyebrow: "Participación activa",
-    href: "/voluntariado#voluntariado",
-    icon: "M7 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM4 20a4 4 0 0 1 8 0M12 20a4 4 0 0 1 8 0",
-    title: "Hazte voluntario",
-  },
-] as const;
+const getCollaborationCards = (locale: string) => {
+  if (locale === "en") {
+    return [
+      {
+        badge: "Veterinary, food, and emergencies",
+        body: "A one-time contribution helps cover treatments, medication, food, deworming, tests, and rescues.",
+        cta: "See donation methods",
+        eyebrow: "Direct contribution",
+        href: "/donaciones#donar",
+        icon: "M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z",
+        title: "Donate",
+      },
+      {
+        badge: "Stable monthly support",
+        body: "Becoming a member allows us to plan fixed costs and support cases that need care for weeks or months.",
+        cta: "Become a member",
+        eyebrow: "Ongoing commitment",
+        href: "/donaciones#socio",
+        icon: "M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z",
+        title: "Become a member",
+      },
+      {
+        badge: "A temporary home",
+        body: "Fostering frees up space, reduces stress, and allows us to get to know the animal better while they wait for adoption.",
+        cta: "Become a foster home",
+        eyebrow: "Temporary foster",
+        href: "/voluntariado#acogida",
+        icon: "M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-8.5Z",
+        title: "Foster home",
+      },
+      {
+        badge: "Support with a personal touch",
+        body: "Sponsoring helps cover the needs of a specific animal, especially if they require special care.",
+        cta: "See sponsorship",
+        eyebrow: "For long stays",
+        href: "/apadrina",
+        icon: "M8 12h8M12 8v8M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Z",
+        title: "Sponsor",
+      },
+      {
+        badge: "Time, hands, and presence",
+        body: "Walks, transfers, events, cleaning, outreach, or organizational support. Every hour dedicated counts.",
+        cta: "Volunteer",
+        eyebrow: "Active participation",
+        href: "/voluntariado#voluntariado",
+        icon: "M7 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM4 20a4 4 0 0 1 8 0M12 20a4 4 0 0 1 8 0",
+        title: "Become a volunteer",
+      },
+    ];
+  }
+  // Fallback vers l'espagnol (ES)
+  return [
+    {
+      badge: "Veterinario, alimento y urgencias",
+      body: "Una aportación puntual ayuda a cubrir tratamientos, medicación, pienso, desparasitaciones, pruebas y rescates.",
+      cta: "Ver formas de donar",
+      eyebrow: "Aportación directa",
+      href: "/donaciones#donar",
+      icon: "M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z",
+      title: "Dona",
+    },
+    {
+      badge: "Ayuda estable cada mes",
+      body: "Ser socio permite planificar gastos fijos y sostener casos que necesitan atención durante semanas o meses.",
+      cta: "Hazte socio",
+      eyebrow: "Compromiso continuado",
+      href: "/donaciones#socio",
+      icon: "M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z",
+      title: "Hazte socio",
+    },
+    {
+      badge: "Un hogar temporal",
+      body: "La acogida libera espacio, reduce estrés y permite conocer mejor al animal mientras aparece una adopción.",
+      cta: "Ser casa de acogida",
+      eyebrow: "Acogida temporal",
+      href: "/voluntariado#acogida",
+      icon: "M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-8.5Z",
+      title: "Casa de acogida",
+    },
+    {
+      badge: "Apoyo con nombre propio",
+      body: "Apadrinar ayuda a cubrir necesidades de un animal concreto, especialmente si requiere cuidados especiales.",
+      cta: "Ver apadrinamiento",
+      eyebrow: "Para largas estancias",
+      href: "/apadrina",
+      icon: "M8 12h8M12 8v8M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0Z",
+      title: "Apadrina",
+    },
+    {
+      badge: "Tiempo, manos y presencia",
+      body: "Paseos, traslados, eventos, limpieza, difusión o apoyo organizativo. Cada hora dedicada cuenta.",
+      cta: "Hacer voluntariado",
+      eyebrow: "Participación activa",
+      href: "/voluntariado#voluntariado",
+      icon: "M7 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM17 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM4 20a4 4 0 0 1 8 0M12 20a4 4 0 0 1 8 0",
+      title: "Hazte voluntario",
+    },
+  ];
+};
 
 export default async function HelpPage() {
   const locale = await getLocale();
   const t = getDictionary(locale);
   const session = await getAdminSession();
+  const collaborationCards = getCollaborationCards(locale);
 
   return (
     <div className="space-y-10 mb-16">
@@ -108,11 +161,12 @@ export default async function HelpPage() {
                 {t.help.optionsEyebrow}
               </p>
               <h2 className="display-font mt-3 text-5xl leading-none sm:text-6xl">
-                Colabora a tu manera
+                {locale === "en" ? "Help in your own way" : "Colabora a tu manera"}
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-white/78">
-                No todo el mundo puede adoptar, pero casi todo el mundo puede ayudar de
-                alguna forma. Elige la vía que encaje contigo y APADAC te orientará.
+                {locale === "en" 
+                  ? "Not everyone can adopt, but almost everyone can help in some way. Choose the path that suits you and APADAC will guide you."
+                  : "No todo el mundo puede adoptar, pero casi todo el mundo puede ayudar de alguna forma. Elige la vía que encaje contigo y APADAC te orientará."}
               </p>
             </div>
 
@@ -143,7 +197,7 @@ export default async function HelpPage() {
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {collaborationCards.slice(2).map((card, index) => (
               <Link
-                className="surface-lift group flex flex-col rounded-[1.8rem] border border-white/18 bg-white/90 p-6 text-[var(--foreground)] shadow-[0_18px_50px_rgba(58,40,50,0.14)]"
+                className="surface-lift group flex flex-col rounded-[1.8rem] border border-[var(--line)] bg-white p-6 text-[var(--foreground)] shadow-[0_18px_50px_rgba(58,40,50,0.14)]"
                 href={card.href}
                 key={card.title}
                 style={{ animationDelay: `${index * 80}ms` }}
@@ -152,7 +206,7 @@ export default async function HelpPage() {
                   <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24"><path d={card.icon} /></svg>
                 </span>
                 <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">{card.eyebrow}</p>
-                <h3 className="display-font mt-3 text-3xl leading-none">{card.title}</h3>
+                <h3 className="display-font mt-3 text-3xl leading-none text-[var(--foreground)]">{card.title}</h3>
                 <p className="mt-4 flex-grow text-sm leading-7 text-[var(--muted)]">{card.body}</p>
                 
                 <div className="mt-6">

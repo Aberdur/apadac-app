@@ -6,9 +6,9 @@ type AdoptionProcessTimelineProps = {
   content: AdoptionGuidePageContent;
 };
 
-const phaseLabels = ["Primer contacto", "Valoración", "Adopción", "Después"];
-
 export function AdoptionProcessTimeline({ content }: AdoptionProcessTimelineProps) {
+  const phaseLabels = content.ui?.phases || ["Primer contacto", "Valoración", "Adopción", "Después"];
+
   return (
     <div className="space-y-8">
       <section className="grid gap-6 rounded-[2.4rem] border border-[var(--line)] bg-[linear-gradient(135deg,rgba(111,83,100,0.96),rgba(185,121,101,0.86))] p-8 text-white shadow-[var(--shadow)] lg:grid-cols-[1fr_0.8fr] lg:p-10">
@@ -59,7 +59,7 @@ export function AdoptionProcessTimeline({ content }: AdoptionProcessTimelineProp
             key={label}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--olive)]">
-              Fase
+              {content.ui?.phaseLabel || "Fase"}
             </p>
             <p className="display-font mt-2 text-2xl leading-none">{label}</p>
           </div>
@@ -69,10 +69,10 @@ export function AdoptionProcessTimeline({ content }: AdoptionProcessTimelineProp
       <section className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[var(--shadow)] lg:p-8">
         <div className="mb-8 max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--olive)]">
-            Ruta de adopción
+            {content.ui?.timelineEyebrow || "Ruta de adopción"}
           </p>
           <h2 className="display-font mt-3 text-4xl leading-none">
-            Qué ocurre desde el primer contacto hasta el seguimiento
+            {content.ui?.timelineTitle || "Qué ocurre desde el primer contacto hasta el seguimiento"}
           </h2>
         </div>
 

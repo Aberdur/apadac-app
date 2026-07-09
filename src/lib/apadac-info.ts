@@ -58,9 +58,51 @@ const es: ApadacInfoContent = {
   title: "Quiénes somos",
 };
 
+const en: ApadacInfoContent = {
+  cta: "Learn how to help",
+  intro:
+    "In 2010, a group of volunteers embarked on this incredibly challenging yet rewarding journey to help the abandoned animals of Callosa de Segura.",
+  missionCards: [
+    {
+      title: "Rescue and protection",
+      body: "APADAC works to help abandoned animals in the area, putting an end to their suffering and saving them from a certain death.",
+    },
+    {
+      title: "Awareness",
+      body: "Our work goes beyond rescuing: we also strive to educate the public, including children, to prevent animal abandonment and foster respect for all living beings.",
+    },
+    {
+      title: "Responsible neutering",
+      body: "The association emphasizes preventing animal overpopulation through the responsible spaying and neutering of dogs and cats.",
+    },
+    {
+      title: "Adoption as the primary solution",
+      body: "APADAC promotes responsible adoption as the first and best alternative to end the suffering of the most defenseless animals.",
+    },
+    {
+      title: "Education and campaigns",
+      body: "Whenever resources allow, we organize awareness campaigns, charity fairs, and educational talks in schools.",
+    },
+    {
+      title: "Volunteering",
+      body: "We are a non-profit association run entirely by volunteers. Every form of help, no matter how small, makes a real difference.",
+    },
+  ],
+  quote: "If you spend time with animals, you run the risk of becoming a better person.",
+  stats: [
+    { label: "Adopted animals", value: "640+" },
+    { label: "Rescued animals", value: "122+" },
+    { label: "Reunited with families", value: "34" },
+    { label: "Volunteers", value: "16" },
+  ],
+  subtitle:
+    "Association for the protection of abandoned domestic animals in Callosa de Segura.",
+  title: "About us",
+};
+
 export const apadacInfoByLocale: Record<Locale, ApadacInfoContent> = {
-  de: es,
-  en: es,
+  de: es, // Reste en espagnol temporairement jusqu'à la traduction allemande
+  en,     // Utilise maintenant l'objet anglais défini ci-dessus
   es,
 };
 

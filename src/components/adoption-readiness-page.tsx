@@ -53,7 +53,7 @@ export function AdoptionReadinessPage({ content }: AdoptionReadinessPageProps) {
           {content.featured ? (
             <aside className="rounded-[2rem] border border-white/70 bg-white/72 p-6 shadow-[0_20px_70px_rgba(111,83,100,0.12)] backdrop-blur">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--olive)]">
-                Antes de decidir
+                {content.ui?.featuredEyebrow || "Antes de decidir"}
               </p>
               <h2 className="display-font mt-3 text-4xl leading-none">
                 {content.featured.title}
@@ -97,10 +97,10 @@ export function AdoptionReadinessPage({ content }: AdoptionReadinessPageProps) {
 
         <aside className="rounded-[2.1rem] border border-[var(--line)] bg-[var(--olive-deep)] p-7 text-white shadow-[var(--shadow)]">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] opacity-75">
-            Señales importantes
+            {content.ui?.signalsEyebrow || "Señales importantes"}
           </p>
           <h2 className="display-font mt-3 text-4xl leading-none">
-            Si una respuesta te incomoda, merece la pena pararse
+            {content.ui?.signalsTitle || "Si una respuesta te incomoda, merece la pena pararse"}
           </h2>
           <div className="mt-6 grid gap-3">
             {compactItems.map((item) => (
@@ -122,13 +122,14 @@ export function AdoptionReadinessPage({ content }: AdoptionReadinessPageProps) {
         <div className="grid border-b border-[var(--line)] p-7 lg:grid-cols-[0.45fr_1fr]">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--olive)]">
-              Preguntas incómodas, adopciones mejores
+              {content.ui?.footerEyebrow || "Preguntas incómodas, adopciones mejores"}
             </p>
-            <h2 className="display-font mt-3 text-4xl leading-none">Lee sin prisa</h2>
+            <h2 className="display-font mt-3 text-4xl leading-none">
+              {content.ui?.footerTitle || "Lee sin prisa"}
+            </h2>
           </div>
           <p className="mt-4 text-sm leading-8 text-[var(--muted)] lg:mt-0">
-            Estas preguntas no buscan desanimar. Buscan que el animal no vuelva a pasar por una
-            devolución, un abandono o una convivencia que nadie preparó bien.
+            {content.ui?.footerText || "Estas preguntas no buscan desanimar. Buscan que el animal no vuelva a pasar por una devolución, un abandono o una convivencia que nadie preparó bien."}
           </p>
         </div>
 

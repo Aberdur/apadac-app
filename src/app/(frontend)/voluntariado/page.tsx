@@ -14,43 +14,109 @@ const resolvePrimaryLink = (value?: string | null, fallback = "/contacto") =>
 const mailtoLink = (email?: string | null) =>
   typeof email === "string" && email.trim().length > 0 ? `mailto:${email.trim()}` : "/contacto";
 
-const fosterHighlights = [
-  "Acogida temporal hasta adopción",
-  "Ideal para cachorros, recuperaciones o animales sensibles",
-  "Permite conocer carácter, rutinas y necesidades reales",
-];
-
-const volunteerHighlights = [
-  "Paseos y socialización",
-  "Traslados, eventos y apoyo logístico",
-  "Difusión de casos y ayuda organizativa",
-];
+const copyByLocale = {
+  es: {
+    pageTitle: "Participación Activa",
+    pageSubtitle: "Únete a nuestro equipo. Tu tiempo, tus manos y tu hogar salvan vidas.",
+    fosterHighlights: [
+      "Acogida temporal hasta adopción",
+      "Ideal para cachorros, recuperaciones o animales sensibles",
+      "Permite conocer carácter, rutinas y necesidades reales",
+    ],
+    volunteerHighlights: [
+      "Paseos y socialización",
+      "Traslados, eventos y apoyo logístico",
+      "Difusión de casos y ayuda organizativa",
+    ],
+    cms: {
+      fosterText: "Ser casa de acogida permite sacar animales de situaciones complicadas y conocer mejor su carácter.",
+      volunteerText: "Paseos, traslados, eventos, difusión o tareas organizativas. Cada hora dedicada cuenta.",
+      diffusionText: "Compartir casos, hablar de APADAC y movilizar a otras personas también ayuda a salvar vidas."
+    }
+  },
+  en: {
+    pageTitle: "Active Participation",
+    pageSubtitle: "Join our team. Your time, your hands, and your home save lives.",
+    fosterHighlights: [
+      "Temporary foster until adoption",
+      "Ideal for puppies, recoveries, or sensitive animals",
+      "Allows us to know their real character, routines, and needs",
+    ],
+    volunteerHighlights: [
+      "Walks and socialization",
+      "Transfers, events, and logistical support",
+      "Spreading cases and organizational help",
+    ],
+    cms: {
+      fosterText: "Becoming a foster home helps animals escape difficult situations and allows us to better understand their personality.",
+      volunteerText: "Dog walking, transportation, events, outreach, or administrative tasks. Every hour you give matters.",
+      diffusionText: "Sharing cases, talking about APADAC, and getting other people involved also helps save lives."
+    }
+  },
+  de: {
+    pageTitle: "Aktive Teilnahme",
+    pageSubtitle: "Werde Teil unseres Teams. Deine Zeit, deine Hände und dein Zuhause retten Leben.",
+    fosterHighlights: [
+      "Vorübergehende Pflege bis zur Adoption",
+      "Ideal für Welpen, zur Erholung oder für sensible Tiere",
+      "Ermöglicht es, Charakter, Routinen und echte Bedürfnisse kennenzulernen",
+    ],
+    volunteerHighlights: [
+      "Spaziergänge und Sozialisierung",
+      "Fahrten, Veranstaltungen und logistische Unterstützung",
+      "Verbreitung von Fällen und organisatorische Hilfe",
+    ],
+    cms: {
+      fosterText: "Pflegestelle zu sein hilft, Tiere aus schwierigen Situationen zu holen und ihren Charakter besser kennenzulernen.",
+      volunteerText: "Spaziergänge, Fahrten, Veranstaltungen, Sichtbarkeit oder organisatorische Aufgaben. Jede investierte Stunde zählt.",
+      diffusionText: "Fälle teilen, über APADAC sprechen und andere mobilisieren hilft ebenfalls, Leben zu retten."
+    }
+  }
+};
 
 export default async function VoluntariadoPage() {
   const locale = await getLocale();
   const t = getDictionary(locale);
+  const copy = copyByLocale[locale];
   const payload = await getCMS();
 
   let helpSettings;
   try {
-    helpSettings = await payload.findGlobal({ depth: 1, slug: "como-ayudar" });
+    helpSettings = await payload.findGlobal({ 
+      depth: 1, 
+      slug: "como-ayudar",
+      locale: locale as "es" | "en" | "de",
+      fallbackLocale: "es" 
+    });
   } catch (error) {
     helpSettings = {} as any;
   }
 
+  const defaultEsTexts = copyByLocale.es.cms;
+  
+  // Fonction de traduction magique pour les textes du CMS non traduits
+  const translateCMS = (text: unknown, key: keyof typeof defaultEsTexts, defaultFallback: string) => {
+    if (typeof text !== "string" || text.trim().length === 0) return defaultFallback;
+    if (text.trim() === defaultEsTexts[key].trim()) {
+      return copy.cms[key];
+    }
+    return text.trim();
+  };
+
   const contactEmail = helpSettings?.contactEmail as string | undefined;
-  const fosterText = (helpSettings?.fosterText as string | undefined) || t.help.fosterText;
-  const volunteerText = (helpSettings?.volunteerText as string | undefined) || t.help.volunteerText;
-  const diffusionText = (helpSettings?.diffusionText as string | undefined) || t.help.diffusionText;
+  
+  const fosterText = translateCMS(helpSettings?.fosterText, "fosterText", t.help.fosterText);
+  const volunteerText = translateCMS(helpSettings?.volunteerText, "volunteerText", t.help.volunteerText);
+  const diffusionText = translateCMS(helpSettings?.diffusionText, "diffusionText", t.help.diffusionText);
 
   return (
     <main className="container mx-auto px-5 py-16">
       <div className="mb-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
-          Participación Activa
+          {copy.pageTitle}
         </h1>
         <p className="text-lg text-[var(--muted)]">
-          Únete a nuestro equipo. Tu tiempo, tus manos y tu hogar salvan vidas.
+          {copy.pageSubtitle}
         </p>
       </div>
 
@@ -61,7 +127,7 @@ export default async function VoluntariadoPage() {
           <h2 className="display-font mt-3 text-4xl leading-none">{t.help.fosterTitle}</h2>
           <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{fosterText}</p>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {fosterHighlights.map((item) => (
+            {copy.fosterHighlights.map((item) => (
               <div className="rounded-[1.4rem] border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm font-semibold leading-6 text-[var(--foreground)]" key={item}>
                 {item}
               </div>
@@ -85,7 +151,7 @@ export default async function VoluntariadoPage() {
           <h2 className="display-font mt-3 text-4xl leading-none">{t.help.volunteerTitle}</h2>
           <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{volunteerText}</p>
           <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {volunteerHighlights.map((item) => (
+            {copy.volunteerHighlights.map((item) => (
               <div className="rounded-[1.4rem] border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm font-semibold leading-6 text-[var(--foreground)]" key={item}>
                 {item}
               </div>

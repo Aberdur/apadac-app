@@ -6,16 +6,49 @@ type PreAdoptionQuestionnaireOverviewProps = {
   content: AdoptionGuidePageContent;
 };
 
-const focusAreas = [
-  "Quién eres y cómo contactarte",
-  "Dónde vivirá el animal",
-  "Rutina, vacaciones y tiempo solo",
-  "Experiencia, convivencia y expectativas",
-];
+const copyByLocale = {
+  es: {
+    focusAreas: [
+      "Quién eres y cómo contactarte",
+      "Dónde vivirá el animal",
+      "Rutina, vacaciones y tiempo solo",
+      "Experiencia, convivencia y expectativas",
+    ],
+    beforeStart: "Antes de empezar",
+    keepHandy: "Ten a mano",
+  },
+  en: {
+    focusAreas: [
+      "Who you are and how to contact you",
+      "Where the animal will live",
+      "Routine, holidays, and time alone",
+      "Experience, coexistence, and expectations",
+    ],
+    beforeStart: "Before you start",
+    keepHandy: "Keep handy",
+  },
+  de: {
+    focusAreas: [
+      "Wer du bist und wie wir dich erreichen",
+      "Wo das Tier leben wird",
+      "Alltag, Urlaub und Zeit allein",
+      "Erfahrung, Zusammenleben und Erwartungen",
+    ],
+    beforeStart: "Bevor du beginnst",
+    keepHandy: "Bereithalten",
+  },
+};
 
 export function PreAdoptionQuestionnaireOverview({
   content,
 }: PreAdoptionQuestionnaireOverviewProps) {
+  
+  // Déduction automatique de la langue en fonction du titre traduit
+  const isEn = content.eyebrow === "Pre-adoption form";
+  const isDe = content.eyebrow === "Voranfrage";
+  const locale = isEn ? "en" : isDe ? "de" : "es";
+  const copy = copyByLocale[locale];
+
   return (
     <div className="space-y-8">
       <section className="overflow-hidden rounded-[2.4rem] border border-[var(--line)] bg-[linear-gradient(135deg,rgba(255,250,247,0.98),rgba(216,195,224,0.28))] shadow-[var(--shadow)]">
@@ -47,7 +80,7 @@ export function PreAdoptionQuestionnaireOverview({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {focusAreas.map((area) => (
+            {copy.focusAreas.map((area) => (
               <article
                 className="rounded-[1.75rem] border border-white/80 bg-white/70 p-5 shadow-[0_16px_50px_rgba(111,83,100,0.09)]"
                 key={area}
@@ -77,14 +110,14 @@ export function PreAdoptionQuestionnaireOverview({
         <section className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
           <article className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-7 shadow-[var(--shadow)]">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--olive)]">
-              Antes de empezar
+              {copy.beforeStart}
             </p>
             <h2 className="display-font mt-3 text-4xl leading-none">{content.featured.title}</h2>
             <p className="mt-5 text-sm leading-8 text-[var(--muted)]">{content.featured.body}</p>
           </article>
           <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--olive-deep)] p-7 text-white shadow-[var(--shadow)]">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] opacity-75">
-              Ten a mano
+              {copy.keepHandy}
             </p>
             <div className="mt-5 grid gap-3">
               {content.featured.items.map((item) => (
