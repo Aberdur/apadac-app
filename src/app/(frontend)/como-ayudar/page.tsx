@@ -57,7 +57,6 @@ const getCollaborationCards = (locale: string) => {
       },
     ];
   }
-  // Fallback vers l'espagnol (ES)
   return [
     {
       badge: "Veterinario, alimento y urgencias",

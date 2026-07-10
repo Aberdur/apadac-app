@@ -101,8 +101,8 @@ const en: ApadacInfoContent = {
 };
 
 export const apadacInfoByLocale: Record<Locale, ApadacInfoContent> = {
-  de: es, // Reste en espagnol temporairement jusqu'à la traduction allemande
-  en,     // Utilise maintenant l'objet anglais défini ci-dessus
+  de: es,
+  en,
   es,
 };
 

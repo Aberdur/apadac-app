@@ -43,7 +43,6 @@ export function PreAdoptionQuestionnaireOverview({
   content,
 }: PreAdoptionQuestionnaireOverviewProps) {
   
-  // Déduction automatique de la langue en fonction du titre traduit
   const isEn = content.eyebrow === "Pre-adoption form";
   const isDe = content.eyebrow === "Voranfrage";
   const locale = isEn ? "en" : isDe ? "de" : "es";

@@ -3,7 +3,6 @@ export const calculateAge = (dateString: string | null | undefined): string => {
 
   const birthDate = new Date(dateString);
   
-  // Vérification si la date est valide
   if (isNaN(birthDate.getTime())) return "Edad no especificada";
 
   const today = new Date();

@@ -199,7 +199,6 @@ export const getPreAdoptionQuestionnaireSections = (locale: Locale) =>
 export const getPreAdoptionQuestionnaireFields = (locale: Locale) =>
   getPreAdoptionQuestionnaireSections(locale).flatMap((section) => section.fields);
 
-// Fallbacks statiques conservés pour assurer la compatibilité avec ta route API POST
 export const preAdoptionQuestionnaireSections: PreAdoptionSection[] = sectionsEs;
 export const preAdoptionQuestionnaireFields = preAdoptionQuestionnaireSections.flatMap(
   (section) => section.fields,

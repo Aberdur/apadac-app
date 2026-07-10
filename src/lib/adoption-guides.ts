@@ -20,7 +20,6 @@ export type AdoptionGuidePage = {
   secondaryHref?: string;
   secondaryLabel?: string;
   title: string;
-  // Toutes les clés d'interface sont optionnelles pour s'adapter aux différentes pages
   ui?: {
     featuredEyebrow?: string;
     footerEyebrow?: string;

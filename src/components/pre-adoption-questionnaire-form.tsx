@@ -79,7 +79,6 @@ export function PreAdoptionQuestionnaireForm({ locale, animals = [] }: PreAdopti
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
 
-  // Utilisation des données localisées
   const sections = getPreAdoptionQuestionnaireSections(locale);
   const fields = getPreAdoptionQuestionnaireFields(locale);
 

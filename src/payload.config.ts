@@ -40,12 +40,6 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  // ACTIVATION DU MULTILINGUISME DANS LE CMS
-  /*localization: {
-    locales: ["es", "en", "de"],
-    defaultLocale: "es",
-    fallback: true, // Si un texte n'est pas traduit en anglais, il affichera l'espagnol par défaut
-  },*/
   collections: [Users, Media, AnimalFiles, Animals, AnimalDossiers, Announcements],
   globals: [HelpSettings],
   db: sqliteAdapter({

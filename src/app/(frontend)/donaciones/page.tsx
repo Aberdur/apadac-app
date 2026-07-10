@@ -110,7 +110,6 @@ export default async function DonacionesPage() {
 
   const defaultEsTexts = copyByLocale.es.cms;
   
-  // Fonction magique qui traduit les textes du CMS s'ils sont encore en espagnol par défaut
   const translateCMS = (text: unknown, key: keyof typeof defaultEsTexts, defaultFallback: string) => {
     if (typeof text !== "string" || text.trim().length === 0) return defaultFallback;
     if (text.trim() === defaultEsTexts[key].trim()) {

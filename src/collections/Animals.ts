@@ -18,10 +18,6 @@ const slugify = (value: string) =>
     .replace(/[^a-z]+/g, "-") 
     .replace(/(^-|-$)/g, "");
 
-// ---------------------------------------------------------
-// VALIDATIONS PERSONNALISÉES
-// ---------------------------------------------------------
-
 const validateNoNumbersRequired = (value: any): string | true => {
   if (!value || String(value).trim() === "") return "Este campo es obligatorio. / This field is required.";
   if (/\d/.test(String(value))) return "Este campo no puede contener números. / This field cannot contain numbers.";

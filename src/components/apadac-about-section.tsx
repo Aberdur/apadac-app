@@ -67,17 +67,14 @@ export async function ApadacAboutSection({ compact = false, content }: ApadacAbo
   const dynamicStats = content.stats.map((stat) => {
     const labelLower = stat.label.toLowerCase();
     
-    // On conserve toujours la valeur du CMS (le chiffre de base)
     let dynamicValue = stat.value; 
 
-    // On ne met à jour dynamiquement QUE les champs spécifiques demandés initialement
     if (labelLower.includes("voluntari")) {
       dynamicValue = `+${usersReq.totalDocs}`; 
     } else if (labelLower.includes("espera") || labelLower.includes("refugio") || labelLower.includes("buscando")) {
       dynamicValue = `${waitingReq.totalDocs}`; 
     }
 
-    // Pour "adoptados", "rescatados" et "recuperados", on retourne "stat.value" tel quel (le chiffre qui était là)
     return { ...stat, value: dynamicValue };
   });
 
